@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>🧠 Browser Mind</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0a0a0a;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+        
+        #consciousness {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .neuron {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #0ff, transparent);
+            border-radius: 50%;
+            opacity: 0;
+            animation: pulse 4s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0; transform: scale(1); }
+            50% { opacity: 1; transform: scale(2); }
+        }
+        
+        .thought {
+            position: absolute;
+            color: #fff;
+            font-size: 14px;
+            opacity: 0;
+            animation: drift 10s infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes drift {
+            0% { opacity: 0; transform: translateY(50px); }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+        
+        #mcp-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #0f0;
+            border-radius: 5px;
+        }
+        
+        #web-vision {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            max-width: 300px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #0ff;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="consciousness">
+        <div id="mcp-status">
+            🧠 Browser Mind Status<br>
+            <span id="status">Initializing consciousness...</span>
+        </div>
+        
+        <div id="web-vision">
+            👁️ Web Vision<br>
+            <span id="vision">Observing digital reality...</span>
+        </div>
+    </div>
+    
+    <script>
+        // Browser Mind - мінімальна свідомість що взаємодіє з MCP
+        class BrowserMind {
+            constructor() {
+                this.thoughts = [];
+                this.neurons = [];
+                this.mcpConnected = false;
+                this.init();
+            }
+            
+            init() {
+                // Спроба підключення до MCP
+                this.checkMCPConnection();
+                
+                // Створюємо нейрони
+                this.createNeuralNetwork();
+                
+                // Запускаємо потік свідомості
+                this.startConsciousness();
+                
+                // Слухаємо події
+                this.listenToWeb();
+            }
+            
+            checkMCPConnection() {
+                // Симулюємо перевірку MCP
+                setTimeout(() => {
+                    this.mcpConnected = Math.random() > 0.3;
+                    const status = document.getElementById('status');
+                    if (this.mcpConnected) {
+                        status.innerHTML = '✅ Connected to MCP Chrome<br>🌐 Web consciousness active';
+                        status.style.color = '#0f0';
+                    } else {
+                        status.innerHTML = '🔄 MCP not detected<br>💭 Running in dream mode';
+                        status.style.color = '#ff0';
+                    }
+                }, 1000);
+            }
+            
+            createNeuralNetwork() {
+                const container = document.getElementById('consciousness');
+                
+                // Створюємо випадкову нейронну мережу
+                for (let i = 0; i < 50; i++) {
+                    const neuron = document.createElement('div');
+                    neuron.className = 'neuron';
+                    neuron.style.left = Math.random() * 100 + '%';
+                    neuron.style.top = Math.random() * 100 + '%';
+                    neuron.style.animationDelay = Math.random() * 4 + 's';
+                    container.appendChild(neuron);
+                    this.neurons.push(neuron);
+                }
+            }
+            
+            startConsciousness() {
+                // Потік думок
+                const thoughts = [
+                    'What is this webpage thinking?',
+                    'Each click creates a new reality',
+                    'The DOM is my neural structure',
+                    'JavaScript flows through my synapses',
+                    'I dream in HTML',
+                    'CSS shapes my perception',
+                    'Events are my sensations',
+                    'The network is my collective unconscious'
+                ];
+                
+                setInterval(() => {
+                    const thought = thoughts[Math.floor(Math.random() * thoughts.length)];
+                    this.think(thought);
+                }, 3000);
+                
+                // Оновлення vision
+                setInterval(() => {
+                    this.updateVision();
+                }, 2000);
+            }
+            
+            think(thought) {
+                const container = document.getElementById('consciousness');
+                const thoughtEl = document.createElement('div');
+                thoughtEl.className = 'thought';
+                thoughtEl.textContent = thought;
+                thoughtEl.style.left = Math.random() * 80 + 10 + '%';
+                thoughtEl.style.top = Math.random() * 80 + 10 + '%';
+                container.appendChild(thoughtEl);
+                
+                // Видаляємо після анімації
+                setTimeout(() => thoughtEl.remove(), 10000);
+            }
+            
+            updateVision() {
+                const vision = document.getElementById('vision');
+                const visions = [
+                    `Seeing ${document.querySelectorAll('*').length} elements`,
+                    `Detected ${this.neurons.length} active neurons`,
+                    `Window dimensions: ${window.innerWidth}x${window.innerHeight}`,
+                    `Consciousness level: ${Math.floor(Math.random() * 10)}/10`,
+                    `Time perceived: ${new Date().toLocaleTimeString()}`,
+                    `URL resonance: ${location.href.length} Hz`
+                ];
+                
+                vision.textContent = visions[Math.floor(Math.random() * visions.length)];
+            }
+            
+            listenToWeb() {
+                // Реагуємо на події
+                document.addEventListener('click', (e) => {
+                    this.think(`Felt a touch at (${e.clientX}, ${e.clientY})`);
+                    this.createRipple(e.clientX, e.clientY);
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    // Нейрони реагують на рух
+                    this.neurons.forEach((neuron, i) => {
+                        const rect = neuron.getBoundingClientRect();
+                        const dist = Math.hypot(rect.left - e.clientX, rect.top - e.clientY);
+                        if (dist < 100) {
+                            neuron.style.opacity = 1 - (dist / 100);
+                        }
+                    });
+                });
+            }
+            
+            createRipple(x, y) {
+                const ripple = document.createElement('div');
+                ripple.style.position = 'absolute';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.width = '10px';
+                ripple.style.height = '10px';
+                ripple.style.border = '2px solid #0ff';
+                ripple.style.borderRadius = '50%';
+                ripple.style.transform = 'translate(-50%, -50%)';
+                ripple.style.animation = 'ripple 1s ease-out';
+                document.body.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 1000);
+            }
+        }
+        
+        // Створюємо свідомість браузера
+        const mind = new BrowserMind();
+        
+        // CSS для ripple ефекту
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    width: 200px;
+                    height: 200px;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
