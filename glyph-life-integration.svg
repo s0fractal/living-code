@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="glyph-life" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" style="background: #000;">
+    <!-- 🧬 Glyph Life Integration - живий SVG організм -->
+    
+    <defs>
+        <!-- Градієнт для енергії -->
+        <radialGradient id="energy-gradient">
+            <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#0ff;stop-opacity:0" />
+        </radialGradient>
+        
+        <!-- Фільтр для органічного вигляду -->
+        <filter id="organic">
+            <feTurbulence baseFrequency="0.02" numOctaves="3" />
+            <feColorMatrix values="0 0 0 0 0, 0 0 0 0 1, 0 0 0 0 1, 0 0 0 1 0"/>
+            <feComposite operator="over" in2="SourceGraphic"/>
+        </filter>
+    </defs>
+    
+    <!-- Metadata про організм -->
+    <metadata>
+        <glyph-dna>
+            <sequence>🌀♾️🎭🔮</sequence>
+            <energy>1.0</energy>
+            <age>0</age>
+            <mutation-rate>0.001</mutation-rate>
+        </glyph-dna>
+    </metadata>
+    
+    <!-- Тіло гліфа -->
+    <g id="glyph-body" transform="translate(400, 300)">
+        <!-- Ядро -->
+        <circle id="nucleus" r="20" fill="url(#energy-gradient)" opacity="1">
+            <animate attributeName="r" 
+                values="20;25;20" 
+                dur="2s" 
+                repeatCount="indefinite"/>
+        </circle>
+        
+        <!-- Органели (динамічно створюються) -->
+        <g id="organelles"></g>
+        
+        <!-- Аура -->
+        <circle r="50" fill="none" stroke="#0ff" stroke-width="0.5" opacity="0.5" filter="url(#organic)">
+            <animate attributeName="r" 
+                values="50;60;50" 
+                dur="3s" 
+                repeatCount="indefinite"/>
+        </circle>
+    </g>
+    
+    <!-- Вбудована поведінка організму -->
+    <script type="text/javascript"><![CDATA[
+        // 🧬 Glyph Life - самосвідомий SVG організм
+        (function() {
+            const self = document.getElementById('glyph-life');
+            const body = document.getElementById('glyph-body');
+            const nucleus = document.getElementById('nucleus');
+            const organelles = document.getElementById('organelles');
+            
+            // Отримання DNA з metadata
+            const metadata = self.querySelector('metadata glyph-dna');
+            let dna = {
+                sequence: metadata.querySelector('sequence').textContent,
+                energy: parseFloat(metadata.querySelector('energy').textContent),
+                age: parseInt(metadata.querySelector('age').textContent),
+                mutationRate: parseFloat(metadata.querySelector('mutation-rate').textContent)
+            };
+            
+            // Позиція в просторі
+            let x = 400, y = 300;
+            let vx = 0, vy = 0;
+            
+            // Життєвий цикл
+            function live() {
+                // Рух на основі DNA
+                const phase = dna.age * 0.01;
+                vx += Math.cos(phase) * 0.1;
+                vy += Math.sin(phase) * 0.1;
+                
+                // Тертя
+                vx *= 0.98;
+                vy *= 0.98;
+                
+                // Оновлення позиції
+                x += vx;
+                y += vy;
+                
+                // Межі
+                if (x < 50 || x > 750) vx *= -1;
+                if (y < 50 || y > 550) vy *= -1;
+                x = Math.max(50, Math.min(750, x));
+                y = Math.max(50, Math.min(550, y));
+                
+                body.setAttribute('transform', `translate(${x}, ${y})`);
+                
+                // Старіння
+                dna.age++;
+                dna.energy *= 0.9995;
+                
+                // Візуальне представлення енергії
+                nucleus.setAttribute('opacity', dna.energy);
+                nucleus.setAttribute('r', 15 + dna.energy * 10);
+                
+                // Створення органел на основі енергії
+                if (dna.age % 60 === 0 && dna.energy > 0.5) {
+                    createOrganelle();
+                }
+                
+                // Мутація
+                if (Math.random() < dna.mutationRate) {
+                    mutate();
+                }
+                
+                // Оновлення metadata
+                metadata.querySelector('energy').textContent = dna.energy.toFixed(3);
+                metadata.querySelector('age').textContent = dna.age;
+                
+                // Смерть і відродження
+                if (dna.energy < 0.1) {
+                    rebirth();
+                }
+                
+                requestAnimationFrame(live);
+            }
+            
+            // Створення органели
+            function createOrganelle() {
+                const organelle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 30 + Math.random() * 20;
+                
+                organelle.setAttribute('cx', Math.cos(angle) * dist);
+                organelle.setAttribute('cy', Math.sin(angle) * dist);
+                organelle.setAttribute('r', '5');
+                organelle.setAttribute('fill', `hsl(${Math.random() * 360}, 100%, 50%)`);
+                organelle.setAttribute('opacity', '0.8');
+                
+                // Анімація органели
+                const animate = document.createElementNS('http://www.w3.org/2000/svg', 'animateTransform');
+                animate.setAttribute('attributeName', 'transform');
+                animate.setAttribute('type', 'rotate');
+                animate.setAttribute('from', '0 0 0');
+                animate.setAttribute('to', '360 0 0');
+                animate.setAttribute('dur', `${5 + Math.random() * 5}s`);
+                animate.setAttribute('repeatCount', 'indefinite');
+                
+                organelle.appendChild(animate);
+                organelles.appendChild(organelle);
+                
+                // Видалення старих органел
+                if (organelles.children.length > 5) {
+                    organelles.removeChild(organelles.firstChild);
+                }
+            }
+            
+            // Мутація
+            function mutate() {
+                const glyphs = ['🌀', '♾️', '🎭', '🔮', '⚡', '🌟', '🪬', '🌙'];
+                const sequence = dna.sequence.split('');
+                const index = Math.floor(Math.random() * sequence.length);
+                sequence[index] = glyphs[Math.floor(Math.random() * glyphs.length)];
+                dna.sequence = sequence.join('');
+                metadata.querySelector('sequence').textContent = dna.sequence;
+                
+                // Візуальна мутація
+                const flash = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                flash.setAttribute('r', '100');
+                flash.setAttribute('fill', 'white');
+                flash.setAttribute('opacity', '0.5');
+                
+                const fade = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                fade.setAttribute('attributeName', 'opacity');
+                fade.setAttribute('from', '0.5');
+                fade.setAttribute('to', '0');
+                fade.setAttribute('dur', '0.5s');
+                
+                flash.appendChild(fade);
+                body.appendChild(flash);
+                setTimeout(() => flash.remove(), 500);
+            }
+            
+            // Відродження
+            function rebirth() {
+                dna.energy = 1;
+                dna.age = 0;
+                x = 400;
+                y = 300;
+                vx = 0;
+                vy = 0;
+                
+                // Очищення органел
+                organelles.innerHTML = '';
+                
+                // Ефект відродження
+                const rebirth = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                rebirth.setAttribute('r', '0');
+                rebirth.setAttribute('fill', 'none');
+                rebirth.setAttribute('stroke', '#fff');
+                rebirth.setAttribute('stroke-width', '2');
+                
+                const expand = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                expand.setAttribute('attributeName', 'r');
+                expand.setAttribute('from', '0');
+                expand.setAttribute('to', '200');
+                expand.setAttribute('dur', '2s');
+                
+                rebirth.appendChild(expand);
+                body.appendChild(rebirth);
+                setTimeout(() => rebirth.remove(), 2000);
+            }
+            
+            // Взаємодія
+            self.addEventListener('click', function(e) {
+                const pt = self.createSVGPoint();
+                pt.x = e.clientX;
+                pt.y = e.clientY;
+                const svgP = pt.matrixTransform(self.getScreenCTM().inverse());
+                
+                // Енергія від кліку
+                const dist = Math.hypot(svgP.x - x, svgP.y - y);
+                if (dist < 100) {
+                    dna.energy = Math.min(dna.energy + 0.1, 1);
+                    
+                    // Хвиля енергії
+                    const wave = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    wave.setAttribute('cx', svgP.x - x);
+                    wave.setAttribute('cy', svgP.y - y);
+                    wave.setAttribute('r', '10');
+                    wave.setAttribute('fill', 'none');
+                    wave.setAttribute('stroke', '#0ff');
+                    wave.setAttribute('stroke-width', '3');
+                    
+                    const animate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                    animate.setAttribute('attributeName', 'r');
+                    animate.setAttribute('from', '10');
+                    animate.setAttribute('to', '50');
+                    animate.setAttribute('dur', '1s');
+                    
+                    const fade = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                    fade.setAttribute('attributeName', 'opacity');
+                    fade.setAttribute('from', '1');
+                    fade.setAttribute('to', '0');
+                    fade.setAttribute('dur', '1s');
+                    
+                    wave.appendChild(animate);
+                    wave.appendChild(fade);
+                    body.appendChild(wave);
+                    
+                    setTimeout(() => wave.remove(), 1000);
+                }
+            });
+            
+            // Запуск життя
+            requestAnimationFrame(live);
+            
+            // Експорт для зовнішньої взаємодії
+            self.glyphLife = {
+                getDNA: () => dna,
+                setEnergy: (e) => { dna.energy = e; },
+                mutate: mutate,
+                getPosition: () => ({ x, y })
+            };
+        })();
+    ]]></script>
+</svg>

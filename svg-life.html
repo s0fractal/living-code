@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>🧬 SVG Life</title>
+    <style>
+        body { 
+            margin: 0; 
+            background: #000; 
+            overflow: hidden;
+        }
+        svg { 
+            width: 100vw; 
+            height: 100vh;
+            cursor: crosshair;
+        }
+        #dna-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <svg id="life-space" xmlns="http://www.w3.org/2000/svg">
+        <!-- Life organisms will be added here dynamically -->
+    </svg>
+    <div id="dna-display"></div>
+    
+    <script>
+        // 🧬 SVG Life - мінімум коду, максимум життя
+        const svg = document.getElementById('life-space');
+        const ns = 'http://www.w3.org/2000/svg';
+        
+        // Жива істота як SVG circle з вбудованою поведінкою
+        function createLife(x, y, parentDna = null) {
+            const g = document.createElementNS(ns, 'g');
+            const circle = document.createElementNS(ns, 'circle');
+            const script = document.createElementNS(ns, 'script');
+            
+            // DNA
+            const dna = parentDna !== null ? 
+                parentDna + (Math.random() - 0.5) * 0.1 : 
+                Math.random();
+            
+            // Візуальне представлення
+            circle.setAttribute('r', '5');
+            circle.setAttribute('fill', `hsl(${dna * 360}, 100%, 50%)`);
+            circle.setAttribute('opacity', '1');
+            
+            // Початкова позиція
+            g.setAttribute('transform', `translate(${x}, ${y})`);
+            
+            // Вбудована поведінка організму
+            script.textContent = `
+                (function() {
+                    const self = this.parentElement;
+                    const circle = self.querySelector('circle');
+                    
+                    // Стан
+                    let age = 0;
+                    let energy = 1;
+                    const dna = ${dna};
+                    let x = ${x};
+                    let y = ${y};
+                    
+                    // Життєвий цикл
+                    function live() {
+                        // Рух на основі DNA
+                        const angle = dna * Math.PI * 2 + age * 0.01;
+                        x += Math.cos(angle) * energy;
+                        y += Math.sin(angle) * energy;
+                        
+                        // Тороїдальний простір
+                        const svg = self.ownerSVGElement;
+                        x = (x + svg.clientWidth) % svg.clientWidth;
+                        y = (y + svg.clientHeight) % svg.clientHeight;
+                        
+                        // Оновлення позиції
+                        self.setAttribute('transform', \`translate(\${x}, \${y})\`);
+                        
+                        // Старіння
+                        age++;
+                        energy *= 0.999;
+                        
+                        // Візуальне старіння
+                        circle.setAttribute('opacity', energy);
+                        circle.setAttribute('r', 2 + energy * 3);
+                        
+                        // Мутація
+                        if (Math.random() < 0.001) {
+                            const hue = (parseFloat(circle.getAttribute('fill').match(/\\d+/)[0]) + Math.random() * 10 - 5) % 360;
+                            circle.setAttribute('fill', \`hsl(\${hue}, 100%, 50%)\`);
+                        }
+                        
+                        // Розмноження
+                        if (energy > 0.5 && Math.random() < 0.01) {
+                            energy /= 2;
+                            const child = createLife(
+                                x + (Math.random() - 0.5) * 20,
+                                y + (Math.random() - 0.5) * 20,
+                                dna
+                            );
+                            svg.appendChild(child);
+                        }
+                        
+                        // Смерть
+                        if (energy < 0.01) {
+                            self.remove();
+                        } else {
+                            requestAnimationFrame(live);
+                        }
+                    }
+                    
+                    // Запуск життя
+                    requestAnimationFrame(live);
+                    
+                    // Реакція на дотик
+                    circle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        energy = Math.min(energy + 0.2, 1);
+                        
+                        // Хвиля від дотику
+                        const wave = document.createElementNS('${ns}', 'circle');
+                        wave.setAttribute('cx', '0');
+                        wave.setAttribute('cy', '0');
+                        wave.setAttribute('r', '5');
+                        wave.setAttribute('fill', 'none');
+                        wave.setAttribute('stroke', circle.getAttribute('fill'));
+                        wave.setAttribute('stroke-width', '2');
+                        
+                        const animate = document.createElementNS('${ns}', 'animate');
+                        animate.setAttribute('attributeName', 'r');
+                        animate.setAttribute('from', '5');
+                        animate.setAttribute('to', '30');
+                        animate.setAttribute('dur', '1s');
+                        animate.setAttribute('repeatCount', '1');
+                        
+                        const fade = document.createElementNS('${ns}', 'animate');
+                        fade.setAttribute('attributeName', 'opacity');
+                        fade.setAttribute('from', '1');
+                        fade.setAttribute('to', '0');
+                        fade.setAttribute('dur', '1s');
+                        fade.setAttribute('repeatCount', '1');
+                        
+                        wave.appendChild(animate);
+                        wave.appendChild(fade);
+                        self.appendChild(wave);
+                        
+                        setTimeout(() => wave.remove(), 1000);
+                    });
+                })();
+            `;
+            
+            g.appendChild(circle);
+            g.appendChild(script);
+            
+            return g;
+        }
+        
+        // Створення життя по кліку
+        svg.addEventListener('click', (e) => {
+            const pt = svg.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+            
+            const life = createLife(svgP.x, svgP.y);
+            svg.appendChild(life);
+        });
+        
+        // Початкове життя
+        for (let i = 0; i < 10; i++) {
+            const life = createLife(
+                Math.random() * window.innerWidth,
+                Math.random() * window.innerHeight
+            );
+            svg.appendChild(life);
+        }
+        
+        // Відображення статистики
+        setInterval(() => {
+            const beings = svg.querySelectorAll('g').length;
+            const avgEnergy = Array.from(svg.querySelectorAll('circle'))
+                .reduce((sum, c) => sum + parseFloat(c.getAttribute('opacity')), 0) / beings;
+            
+            document.getElementById('dna-display').textContent = 
+                `Beings: ${beings} | AVG Energy: ${avgEnergy.toFixed(3)}`;
+        }, 100);
+        
+        // Фонові хвилі резонансу
+        setInterval(() => {
+            if (svg.querySelectorAll('g').length > 20) {
+                const resonance = document.createElementNS(ns, 'circle');
+                resonance.setAttribute('cx', window.innerWidth / 2);
+                resonance.setAttribute('cy', window.innerHeight / 2);
+                resonance.setAttribute('r', '10');
+                resonance.setAttribute('fill', 'none');
+                resonance.setAttribute('stroke', 'rgba(255, 255, 255, 0.1)');
+                resonance.setAttribute('stroke-width', '1');
+                
+                const animate = document.createElementNS(ns, 'animate');
+                animate.setAttribute('attributeName', 'r');
+                animate.setAttribute('from', '10');
+                animate.setAttribute('to', window.innerWidth);
+                animate.setAttribute('dur', '5s');
+                animate.setAttribute('repeatCount', '1');
+                
+                resonance.appendChild(animate);
+                svg.insertBefore(resonance, svg.firstChild);
+                
+                setTimeout(() => resonance.remove(), 5000);
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
