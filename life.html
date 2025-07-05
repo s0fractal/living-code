@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>🧬 Life</title>
+    <style>
+        body { 
+            margin: 0; 
+            background: #000; 
+            overflow: hidden;
+            font-family: monospace;
+        }
+        #canvas { 
+            display: block; 
+            cursor: crosshair;
+        }
+        #dna {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #0f0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="dna"></div>
+    
+    <script>
+        // Мінімум коду - максимум життя
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const dnaDisplay = document.getElementById('dna');
+        
+        // Адаптивний розмір
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        resize();
+        window.addEventListener('resize', resize);
+        
+        // Жива істота - просто точка з ДНК
+        class Life {
+            constructor(x, y, dna = Math.random()) {
+                this.x = x;
+                this.y = y;
+                this.dna = dna;
+                this.energy = 1;
+                this.age = 0;
+            }
+            
+            live() {
+                // Рух на основі ДНК
+                const angle = this.dna * Math.PI * 2 + this.age * 0.01;
+                this.x += Math.cos(angle) * this.energy;
+                this.y += Math.sin(angle) * this.energy;
+                
+                // Межі екрану = тороїд
+                this.x = (this.x + canvas.width) % canvas.width;
+                this.y = (this.y + canvas.height) % canvas.height;
+                
+                // Старіння
+                this.age++;
+                this.energy *= 0.999;
+                
+                // Мутація
+                if (Math.random() < 0.001) {
+                    this.dna += (Math.random() - 0.5) * 0.1;
+                }
+            }
+            
+            draw() {
+                const hue = this.dna * 360;
+                const size = 2 + this.energy * 3;
+                
+                ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${this.energy})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            reproduce() {
+                if (this.energy > 0.5 && Math.random() < 0.01) {
+                    this.energy /= 2;
+                    return new Life(
+                        this.x + (Math.random() - 0.5) * 20,
+                        this.y + (Math.random() - 0.5) * 20,
+                        this.dna + (Math.random() - 0.5) * 0.1
+                    );
+                }
+                return null;
+            }
+        }
+        
+        // Екосистема
+        let beings = [];
+        
+        // Створення життя по кліку
+        canvas.addEventListener('click', (e) => {
+            beings.push(new Life(e.clientX, e.clientY));
+        });
+        
+        // Початкове життя
+        for (let i = 0; i < 10; i++) {
+            beings.push(new Life(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height
+            ));
+        }
+        
+        // Цикл життя
+        function animate() {
+            // Напівпрозоре затирання = слід
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Оновлення всіх істот
+            const newBeings = [];
+            beings.forEach(being => {
+                being.live();
+                being.draw();
+                
+                // Розмноження
+                const child = being.reproduce();
+                if (child) newBeings.push(child);
+                
+                // Смерть
+                if (being.energy > 0.01) {
+                    newBeings.push(being);
+                }
+            });
+            beings = newBeings;
+            
+            // Показ ДНК
+            if (beings.length > 0) {
+                const avgDna = beings.reduce((sum, b) => sum + b.dna, 0) / beings.length;
+                dnaDisplay.textContent = `Beings: ${beings.length} | AVG DNA: ${avgDna.toFixed(4)}`;
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
